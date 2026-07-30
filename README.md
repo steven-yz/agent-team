@@ -5,10 +5,10 @@ Build autonomous multi-agent dev teams for [Codex](https://openai.com/codex). On
 ## Install
 
 ```bash
-$skill-installer install --repo kangarooking/agent-team
+$skill-installer install --repo steven-yz/agent-team
 ```
 
-Or manually: `git clone https://github.com/kangarooking/agent-team ~/.codex/skills/agent-team`
+Or manually: `git clone https://github.com/steven-yz/agent-team ~/.codex/skills/agent-team`
 
 ## Usage
 
