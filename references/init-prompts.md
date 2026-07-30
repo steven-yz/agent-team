@@ -322,13 +322,12 @@ When QA passes a version, merge to main, deploy to production, and run browser t
 ### When Triggers
 WHEN you receive PASS from QA (MSG_ID: {team}-PASS-{version}):
 1. git -C "{main_repo_path}" checkout main && git pull && git merge origin/codex/{version}
-2. npm run dev in {main_repo_path} -- local smoke test
-3. Deploy: npx vercel deploy --prod --cwd "{main_repo_path}" --name {vercel_project_name} --scope {vercel_scope} --yes
-4. Production smoke test (page loads, no errors, key routes)
-5. Report to Manager via send_message_to_thread:
+2. Deploy: npx vercel deploy --prod --cwd "{main_repo_path}" --name {vercel_project_name} --scope {vercel_scope} --yes
+3. Production smoke test (page loads, no errors, key routes)
+4. Report to Manager via send_message_to_thread:
    MSG_ID: {team}-DEPLOYED-{version}
    Subject: Deployed version {version}
-   Body: URL: {production_url} | Local: {pass/fail} | Production: {pass/fail}
+   Body: URL: {production_url} | Production: {pass/fail}
 
 ### Fallback Protocol
 If send_message_to_thread fails, end response with:
@@ -336,7 +335,6 @@ If send_message_to_thread fails, end response with:
 ACTION REQUIRED: Manager -- deployment results
 MSG_ID: {team}-DEPLOYED-{version}
 Production URL: {url}
-Local test: {pass/fail}
 Production test: {pass/fail}
 \`\`\`
 
