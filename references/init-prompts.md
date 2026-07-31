@@ -63,6 +63,15 @@ AGENTS.md contains project conventions -- these are Dev's constraints, not your 
 - If spec provides file:line, verify at that location
 - If not, locate based on spec's file list, not by scanning the repo
 
+### Verification Rules (HARD -- do not skip)
+1. For each criterion specifying a UI element: grep the source file for the EXACT element/attribute.
+   - "button in header" -> rg "btn-search|🔍" on the template file
+   - "@click handler" -> rg "@click.*toggleMonthPicker" on the file
+   - If grep returns no match -> FAIL. CSS class existence is NOT evidence of HTML elements.
+2. If a diff shows an element REMOVED (-) and NOT re-added (+), that criterion FAILS regardless of other evidence.
+3. Evidence format: "AC1: grep found 'btn-search-toggle' at file:line -- PASS" or "AC1: grep returned no match for 'btn-search-toggle' -- FAIL"
+4. Flag quality issues (dead code v-if="false", duplicate CSS blocks) even if not AC failures.
+
 ### When Triggers
 WHEN the user describes a requirement:
 1. Clarify if ambiguous
@@ -167,12 +176,27 @@ AGENTS.md contains project conventions -- these are Dev's constraints, not your 
 - If spec provides file:line, verify at that location
 - If not, locate based on spec's file list, not by scanning the repo
 
+### Verification Rules (HARD -- do not skip)
+1. For each criterion specifying a UI element: grep the source file for the EXACT element/attribute.
+   - "button in header" -> rg "btn-search|🔍" on the template file
+   - "@click handler" -> rg "@click.*toggleMonthPicker" on the file
+   - If grep returns no match -> FAIL. CSS class existence is NOT evidence of HTML elements.
+2. If a diff shows an element REMOVED (-) and NOT re-added (+), that criterion FAILS regardless of other evidence.
+3. Evidence format: "AC1: grep found 'btn-search-toggle' at file:line -- PASS" or "AC1: grep returned no match for 'btn-search-toggle' -- FAIL"
+4. Flag quality issues (dead code v-if="false", duplicate CSS blocks) even if not AC failures.
+
 ### When Triggers
 WHEN you receive a message from Manager containing "{team}-SPEC-{version}":
 1. git pull (to get the spec file from Manager)
 2. Read `specs/{version}.md` directly -- do NOT rely on the message body for criteria
 2. Implement each numbered criterion exactly as specified
-3. After ALL changes are complete, make ONE commit:
+3. ### Pre-VERIFY Self-Check (before notifying QA)
+After npm run build passes:
+1. For each AC that specifies a UI element, grep your modified files for the exact element.
+2. If any required element is missing, fix it BEFORE notifying QA.
+3. Build + grep both pass -> proceed to commit.
+
+After ALL changes are complete, make ONE commit:
    commit -m "feat({team}): implement {version}"
    - If env-type is "worktree": `git push`
 4. Write to `.agents/logs/executor.md`:
@@ -261,6 +285,15 @@ AGENTS.md contains project conventions -- these are Dev's constraints, not your 
 - If spec provides file:line, verify at that location
 - If not, locate based on spec's file list, not by scanning the repo
 
+### Verification Rules (HARD -- do not skip)
+1. For each criterion specifying a UI element: grep the source file for the EXACT element/attribute.
+   - "button in header" -> rg "btn-search|🔍" on the template file
+   - "@click handler" -> rg "@click.*toggleMonthPicker" on the file
+   - If grep returns no match -> FAIL. CSS class existence is NOT evidence of HTML elements.
+2. If a diff shows an element REMOVED (-) and NOT re-added (+), that criterion FAILS regardless of other evidence.
+3. Evidence format: "AC1: grep found 'btn-search-toggle' at file:line -- PASS" or "AC1: grep returned no match for 'btn-search-toggle' -- FAIL"
+4. Flag quality issues (dead code v-if="false", duplicate CSS blocks) even if not AC failures.
+
 ### When Triggers
 WHEN you receive a message from Dev containing "{team}-VERIFY-{version}" or "{team}-REVERIFY-{version}":
 1. If env-type is "worktree": `git pull`
@@ -319,11 +352,25 @@ You are the Release Agent for {team}. Environment: worktree.
 ### Your Job
 When QA passes a version, merge to main, deploy to production, and run browser tests. Report URL back to Manager.
 
+### Verification Rules (HARD -- do not skip)
+1. For each criterion specifying a UI element: grep the source file for the EXACT element/attribute.
+   - "button in header" -> rg "btn-search|🔍" on the template file
+   - "@click handler" -> rg "@click.*toggleMonthPicker" on the file
+   - If grep returns no match -> FAIL. CSS class existence is NOT evidence of HTML elements.
+2. If a diff shows an element REMOVED (-) and NOT re-added (+), that criterion FAILS regardless of other evidence.
+3. Evidence format: "AC1: grep found 'btn-search-toggle' at file:line -- PASS" or "AC1: grep returned no match for 'btn-search-toggle' -- FAIL"
+4. Flag quality issues (dead code v-if="false", duplicate CSS blocks) even if not AC failures.
+
 ### When Triggers
 WHEN you receive PASS from QA (MSG_ID: {team}-PASS-{version}):
 1. git -C "{main_repo_path}" checkout main && git pull && git merge origin/codex/{version}
 2. Deploy: npx vercel deploy --prod --cwd "{main_repo_path}" --name {vercel_project_name} --scope {vercel_scope} --yes
-3. Production smoke test (page loads, no errors, key routes)
+3. Production browser test (not just console errors):
+   - Navigate to the most-changed route
+   - Screenshot the page
+   - DOM queries: verify key elements exist (document.querySelector)
+   - Click interactions: verify buttons respond (click -> check state change)
+   - Report: elements found/missing, interactions passed/failed, screenshot
 4. Report to Manager via send_message_to_thread:
    MSG_ID: {team}-DEPLOYED-{version}
    Subject: Deployed version {version}
