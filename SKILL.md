@@ -39,7 +39,6 @@ User (project owner, says "go")
         |
         +-- Dev (implement)
         +-- QA (independent QA)
-        +-- Release (merge + deploy + test)
 
 Dev-QA loop is autonomous (Manager stays out)
 ```
@@ -50,7 +49,7 @@ User only talks to Manager. Dev and QA handle the fix-verify loop themselves.
 
 | Role | Human role | Responsibility |
 |------|-----------|---------------|
-| Manager | Product Manager | Discuss requirements, write specs to `specs/{version}.md`, delegate, merge on PASS |
+| Manager | Product Manager | Discuss requirements, write specs, delegate, merge+deploy+browser test on PASS, notify user |
 | Dev | Developer | Implement exactly what spec says. Write to EXACT path in spec. |
 | QA | QA | Read `specs/{version}.md` directly. Verify ONLY against criteria in that file. Never infer. |
 
@@ -84,16 +83,6 @@ User only talks to Manager. Dev and QA handle the fix-verify loop themselves.
    Store these IDs. Do NOT read .agents/roster.md.
    """
 
-   To Release (created with local environment for tool access):
-   """
-   BOOT-ROSTER for {team}:
-   - You are Release Agent. Your thread ID: {release_id}
-   - Manager thread ID: {manager_id} -- report deployment URL here
-   - Main repo path: {main_repo_path}
-   - Deploy command: {deploy_command}
-   - Production URL: {production_url}
-
-   Store these IDs. Do NOT read .agents/roster.md.
    """
 
    To QA:
@@ -131,7 +120,7 @@ User only talks to Manager. Dev and QA handle the fix-verify loop themselves.
    - In worktree mode: pull first, then read files
 7. PASS -> QA notifies Manager. FAIL -> QA notifies Dev (NOT Manager).
 8. Dev fixes, re-notifies QA. Loop until PASS or max 5 cycles.
-9. QA sends PASS directly to Release (cc Manager). Release merges, local smoke test, deploys, production smoke test, reports URL to Manager. Manager notifies user.
+9. QA sends PASS to Manager. Manager merges, deploys, browser tests, notifies user with URL.
 
 ## Message format
 
